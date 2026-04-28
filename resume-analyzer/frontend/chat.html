@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume Analyzer AI</title>
+  <link rel="stylesheet" href="css/chat.css">
+</head>
+
+<body>
+
+<!-- ===============================
+     NAVBAR
+================================ -->
+<div class="navbar">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="features.html">Features</a>
+  <a href="chat.html" class="active">Chat</a>
+  <a href="login.html">Login</a>
+  <a href="register.html">Register</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+
+<!-- ===============================
+     PAGE WRAPPER (🔥 IMPORTANT FIX)
+================================ -->
+<div class="page-wrapper">
+
+  <!-- ===============================
+       CHAT CONTAINER
+  ================================= -->
+  <div class="chat-container">
+
+    <!-- HEADER -->
+    <div class="chat-header">
+      <h2>Resume Analyzer AI</h2>
+    </div>
+
+    <!-- CHAT MESSAGES -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="message bot">
+        👋 Welcome! Upload your resume or type a message.
+      </div>
+    </div>
+
+    <!-- INPUT BAR -->
+    <form id="uploadForm" class="chat-input" enctype="multipart/form-data">
+
+      <!-- Upload -->
+      <label for="fileUpload" class="upload-btn">📎</label>
+
+      <input 
+        type="file" 
+        id="fileUpload" 
+        name="resume" 
+        hidden
+      >
+
+      <!-- Text -->
+      <input 
+        type="text" 
+        id="userInput" 
+        name="message" 
+        placeholder="Type your message..." 
+        autocomplete="off"
+      />
+
+      <!-- Send -->
+      <button type="submit">➤</button>
+
+    </form>
+
+  </div>
+
+</div>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>

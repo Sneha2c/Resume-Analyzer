@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Analyzer - Chat Interface</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <a href="features.html">Features</a>
+  <a href="upload.html">Upload</a>
+  <a href="login.html">Login</a>
+  <a href="contact.html">Contact</a>
+</nav>
+
+<div class="chat-container">
+  <div class="chat-header">
+    <h1>Resume Analyzer AI</h1>
+    <p>Upload your resume and get instant AI-powered feedback</p>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="message bot-message">
+      <div class="message-content">
+        <div class="message-icon">🤖</div>
+        <div class="message-text">
+          <p>Welcome! I'm your Resume Analyzer AI assistant.</p>
+          <p>Please upload your resume (PDF format) below, and I'll analyze it for you!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <form id="uploadForm" action="../backend/upload.php" method="POST" enctype="multipart/form-data">
+      <div class="upload-wrapper">
+        <label for="resume" class="upload-btn">
+          <span class="upload-icon">📎</span>
+          <span class="upload-text">Upload Resume</span>
+        </label>
+        <input type="file" id="resume" name="resume" accept=".pdf" required style="display: none;">
+        <span id="fileName" class="file-name">No file selected</span>
+        <button type="submit" id="submitBtn" class="send-btn" disabled>
+          <span class="send-icon">➤</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2024 Resume Analyzer. All rights reserved.</p>
+</footer>
+
+<script>
+  const fileInput = document.getElementById('resume');
+  const fileName = document.getElementById('fileName');
+  const submitBtn = document.getElementById('submitBtn');
+  const chatMessages = document.getElementById('chatMessages');
+  const uploadForm = document.getElementById('uploadForm');
+
+  fileInput.addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+      fileName.textContent = this.files[0].name;
+      submitBtn.disabled = false;
+      
+      // Add user message
+      addMessage('user', `📄 Uploading: ${this.files[0].name}`);
+    }
+  });
+
+  uploadForm.addEventListener('submit', function(e) {
+    // Add loading message
+    addLoadingMessage();
+    
+    // Submit form via AJAX
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch('../backend/upload.php', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+      removeLoadingMessage();
+      
+      // Extract analysis results from response
+      if (data.includes('analysis-result')) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data, 'text/html');
+        const result = doc.querySelector('.analysis-result');
+        
+        if (result) {
+          addMessage('bot', result.innerHTML);
+        } else {
+          addMessage('bot', '<p>✅ Analysis complete! Here are your results:</p>' + data);
+        }
+      } else {
+        addMessage('bot', data);
+      }
+      
+      // Reset form
+      uploadForm.reset();
+      fileName.textContent = 'No file selected';
+      submitBtn.disabled = true;
+    })
+    .catch(error => {
+      removeLoadingMessage();
+      addMessage('bot', '<p class="error">❌ Upload failed. Please try again.</p>');
+      console.error('Error:', error);
+    });
+  });
+
+  function addMessage(type, content) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}-message`;
+    messageDiv.innerHTML = `
+      <div class="message-content">
+        ${type === 'bot' ? '<div class="message-icon">🤖</div>' : ''}
+        <div class="message-text">${content}</div>
+      </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function addLoadingMessage() {
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'message bot-message loading';
+    loadingDiv.id = 'loadingMessage';
+    loadingDiv.innerHTML = `
+      <div class="message-content">
+        <div class="message-icon">🤖</div>
+        <div class="message-text">
+          <div class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <p>Analyzing your resume...</p>
+        </div>
+      </div>
+    `;
+    chatMessages.appendChild(loadingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function removeLoadingMessage() {
+    const loading = document.getElementById('loadingMessage');
+    if (loading) loading.remove();
+  }
+</script>
+
+</body>
+</html>
